@@ -1,0 +1,7 @@
+actions:
+  - rotate_fake_credential
+  - add_lure
+  - change_banner
+  - response_delay_ms
+max_response_delay_ms: 250
+max_lure_chars: 280

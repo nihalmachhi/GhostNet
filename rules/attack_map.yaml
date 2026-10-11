@@ -1,0 +1,20 @@
+credential_guessing:
+  - tactic: Credential Access
+    technique: T1110
+    name: Brute Force
+scan_discovery:
+  - tactic: Reconnaissance
+    technique: T1595
+    name: Active Scanning
+scripted_interaction:
+  - tactic: Discovery
+    technique: T1082
+    name: System Information Discovery
+interactive_exploration:
+  - tactic: Discovery
+    technique: T1083
+    name: File and Directory Discovery
+canary_followup:
+  - tactic: Collection
+    technique: T1005
+    name: Data from Local System
