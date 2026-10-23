@@ -2,7 +2,7 @@
   <img src="assets/readme-icon.png" alt="GhostNet icon" width="112" />
 </p>
 
-# GhostNet
+<h1 align="center">GhostNet</h1>
 
 **A contained deception lab that turns fake services into high-signal security telemetry.**
 
