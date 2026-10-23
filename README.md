@@ -36,32 +36,24 @@ GhostNet runs low-interaction decoys (a web admin panel, an SSH-like prompt, a f
 - **Auditable.** Rule-based labels, explicit ATT&CK mappings, a hash-chained event log and approval-gated actions make every conclusion traceable.
 - **A good training sandbox.** Scripted benign test actors let you generate sample data and see the full detection pipeline without touching a real network.
 
-## Architecture
+## How it works
 
-```
- Web decoy      SSH-like decoy      Fake DB decoy
-     \               |                /
-      \              |               /     (isolated internal Docker network)
-       +-------------+--------------+
-                     |  events
-                     v
-            FastAPI control API
-                     |
-        +------------+-------------+
-        v                          v
- SQLite + per-decoy          Sessions + heuristic labels
- hash chain                         |
-                           +--------+--------+
-                           v                 v
-                    Actor evidence      ATT&CK tactic
-                        graph             mapping
-                     \                      /
-                      v                    v
-                 React dashboard (REST + WebSocket)
+The decoys emit privacy-minimized events into the control API. Events are tamper-evident, grouped into sessions, and labeled with readable behavior rules before analysts inspect the evidence and any proposed response.
+
+```mermaid
+flowchart LR
+  A[Benign lab actor] --> B[Inert decoys on isolated network]
+  B --> C[Privacy-minimized event]
+  C --> D[FastAPI control API]
+  D --> E[SQLite per-decoy hash chain]
+  E --> F[Session correlation and behavior rules]
+  F --> G[Actor evidence graph and ATT&CK mapping]
+  G --> H[React dashboard via REST and WebSocket]
+  H --> I[Allowlisted response proposal]
+  I --> J[Analyst approval recorded]
 ```
 
-The API and dashboard sit on the control network. Decoys attach only to the internal deception network and are published separately on loopback for local training.
-
+Decoys are published only on loopback for the local test actors. They do not run a real shell or SQL engine, and analyst approval records a decision without deploying changes. Startup validates the Compose configuration and runtime containment before services are launched.
 ## Getting started
 
 **Requirements:** Python 3.11+, [uv](https://docs.astral.sh/uv/), Node.js 20+, Docker
@@ -159,3 +151,4 @@ This is a local learning build, not a production honeypot. It ships no real shel
 ## Author
 
 **Nihal Machhi** · [GitHub](https://github.com/nihalmachhi)
+
