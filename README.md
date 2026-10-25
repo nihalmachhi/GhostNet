@@ -45,19 +45,16 @@ GhostNet runs low-interaction decoys (a web admin panel, an SSH-like prompt, a f
 The decoys emit privacy-minimized events into the control API. Events are tamper-evident, grouped into sessions, and labeled with readable behavior rules before analysts inspect the evidence and any proposed response.
 
 ```mermaid
-flowchart TD
+flowchart LR
   A[Benign lab actor] --> B[Inert decoys on isolated network]
-  B --> C[Privacy-minimized interaction event]
+  B --> C[Privacy-minimized event]
   C --> D[FastAPI control API]
-  D --> E[Validate and append event]
-  E --> F[(SQLite per-decoy hash chain)]
-  F --> G[Session correlation]
-  G --> H[Behavior rules and ATT&CK mapping]
-  H --> I[Evidence graph and analyst findings]
-  I --> J[React dashboard over REST and WebSocket]
-  J --> K[Allowlisted response proposal]
-  K --> L[Analyst approval recorded]
-  L --> F
+  D --> E[SQLite per-decoy hash chain]
+  E --> F[Session correlation and behavior rules]
+  F --> G[Actor evidence graph and ATT&CK mapping]
+  G --> H[React dashboard via REST and WebSocket]
+  H --> I[Allowlisted response proposal]
+  I --> J[Analyst approval recorded]
 ```
 
 Decoys are published only on loopback for the local test actors. They do not run a real shell or SQL engine, and analyst approval records a decision without deploying changes. Startup validates the Compose configuration and runtime containment before services are launched.
