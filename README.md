@@ -4,6 +4,12 @@
 
 <h1 align="center">GhostNet</h1>
 
+<p align="center">
+  <a href="https://github.com/nihalmachhi/GhostNet/actions/workflows/ci.yml"><img src="https://github.com/nihalmachhi/GhostNet/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
+  <img src="https://img.shields.io/badge/python-3.11%2B-blue.svg" alt="Python 3.11 or newer" />
+</p>
+
 **A contained deception lab that turns fake services into high-signal security telemetry.**
 
 GhostNet runs low-interaction decoys (a web admin panel, an SSH-like prompt, a fake database) on an isolated Docker network. Anything that touches them is suspicious by definition. The backend records what happened with minimal personal data, links events into sessions, labels behavior with transparent rules, maps it to MITRE ATT&CK tactics, and shows it all in a React dashboard.

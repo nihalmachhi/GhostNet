@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Mapping
 import os
 
 import httpx
@@ -13,7 +14,7 @@ async def send_event(
     decoy_id: str,
     decoy_type: str,
     kind: str,
-    data: dict,
+    data: Mapping[str, object],
     session_id: str | None = None,
 ) -> None:
     client = request.client

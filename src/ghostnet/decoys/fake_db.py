@@ -3,10 +3,12 @@ from __future__ import annotations
 import asyncio
 import os
 
+from typing import Mapping
+
 from ghostnet.sensors.privacy import hash_source
 
 
-def emit(peer: tuple, kind: str, data: dict) -> None:
+def emit(peer: tuple[str, int], kind: str, data: Mapping[str, object]) -> None:
     import httpx
 
     source, port = str(peer[0]), int(peer[1])

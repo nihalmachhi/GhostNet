@@ -9,7 +9,7 @@ def map_behavior(label: str, rules_path: str | Path | None = None) -> list[dict[
     path = (
         Path(rules_path)
         if rules_path
-        else Path(__file__).resolve().parents[2] / "rules" / "attack_map.yaml"
+        else Path(__file__).resolve().parents[1] / "rules" / "attack_map.yaml"
     )
     mapping: dict[str, list[dict[str, str]]] = (
         yaml.safe_load(path.read_text(encoding="utf-8")) or {}

@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import os
+from typing import Mapping
 
 from ghostnet.sensors.client import credential_summary
 from ghostnet.sensors.privacy import hash_source
 
 
-def log_event(source: str, source_port: int, kind: str, data: dict) -> None:
+def log_event(source: str, source_port: int, kind: str, data: Mapping[str, object]) -> None:
     import httpx
 
     payload = {

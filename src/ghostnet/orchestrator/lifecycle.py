@@ -9,7 +9,7 @@ from ghostnet.orchestrator.containment_check import check_compose_config, check_
 
 def main() -> int:
     action = sys.argv[1] if len(sys.argv) > 1 else "help"
-    compose = Path(__file__).resolve().parents[2] / "docker-compose.yml"
+    compose = Path(__file__).resolve().parents[3] / "docker-compose.yml"
     if action == "up":
         failures = check_compose_config(compose)
         if failures:

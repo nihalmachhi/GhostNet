@@ -25,7 +25,7 @@ def _is_decoy(service: dict[str, Any]) -> bool:
     labels = service.get("labels", {})
     if isinstance(labels, list):
         labels = dict(item.split("=", 1) for item in labels if "=" in item)
-    return labels.get("ghostnet.role") == "decoy"
+    return str(labels.get("ghostnet.role")) == "decoy"
 
 
 def check_compose_config(path: str | Path) -> list[str]:
@@ -147,7 +147,7 @@ def check_runtime(compose_path: str | Path) -> list[str]:
 
 
 def main() -> int:
-    compose_path = Path(__file__).resolve().parents[2] / "docker-compose.yml"
+    compose_path = Path(__file__).resolve().parents[3] / "docker-compose.yml"
     failures = check_compose_config(compose_path) + check_runtime(compose_path)
     if failures:
         print("Containment FAILED:")

@@ -5,6 +5,6 @@ test:
 lint:
 	uv run ruff check .
 format:
-	uv run ruff format ghostnet tests
+	uv run ruff format src tests
 containment:
 	uv run python -m ghostnet.orchestrator.containment_check
