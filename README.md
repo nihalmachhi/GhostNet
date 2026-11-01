@@ -12,6 +12,8 @@
 
 **A contained deception lab that turns fake services into high-signal security telemetry.**
 
+Live site: https://nihalmachhi.github.io/GhostNet/
+
 GhostNet runs low-interaction decoys (a web admin panel, an SSH-like prompt, a fake database) on an isolated Docker network. Anything that touches them is suspicious by definition. The backend records what happened with minimal personal data, links events into sessions, labels behavior with transparent rules, maps it to MITRE ATT&CK tactics, and shows it all in a React dashboard.
 
 ---
