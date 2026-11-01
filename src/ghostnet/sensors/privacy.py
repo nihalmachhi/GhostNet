@@ -7,7 +7,8 @@ import os
 
 def hash_source(address: str, secret: str | None = None) -> str:
     key_material = secret or os.getenv("GHOSTNET_HASH_KEY", "local-demo-key-change-me")
-    assert key_material is not None
+    if key_material is None:
+        raise RuntimeError("GHOSTNET_HASH_KEY is required")
     key = key_material.encode()
     digest = hmac.new(key, address.encode(), hashlib.sha256).hexdigest()[:24]
     return "h:" + digest
@@ -17,7 +18,8 @@ def credential_summary(
     username: str, password: str, secret: str | None = None
 ) -> dict[str, str | int]:
     key_material = secret or os.getenv("GHOSTNET_HASH_KEY", "local-demo-key-change-me")
-    assert key_material is not None
+    if key_material is None:
+        raise RuntimeError("GHOSTNET_HASH_KEY is required")
     key = key_material.encode()
     digest = hmac.new(key, password.encode(), hashlib.sha256).hexdigest()[:20]
     normalized = password.lower()

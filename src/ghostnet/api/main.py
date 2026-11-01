@@ -144,7 +144,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         rows = enriched_sessions()
         linked, edges = link_actors(rows)
         if actor:
-            session_ids: list[str] = next((row["session_ids"] for row in linked if row["id"] == actor), [])
+            session_ids: list[str] = next(
+                (row["session_ids"] for row in linked if row["id"] == actor), []
+            )
             rows = [row for row in rows if row["id"] in session_ids]
             linked = [row for row in linked if row["id"] == actor]
             edges = [

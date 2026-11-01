@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import Mapping
 import os
+from collections.abc import Mapping
 
 import httpx
 from fastapi import Request
