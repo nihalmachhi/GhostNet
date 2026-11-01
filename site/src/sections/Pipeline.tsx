@@ -1,14 +1,14 @@
 export function Pipeline() {
   const steps = [
-    { title: "1. Record", body: "A context-manager SDK wraps each step in a span. Retrieval, tool calls and model calls nest under one agent workflow automatically.", color: "#8b5cf6", mini: "trace › agent › retrieval · tool · llm" },
-    { title: "2. Redact", body: "Keys like api_key and password, bearer tokens and emails become [REDACTED] before anything reaches storage. It is best effort.", color: "#f59e0b", mini: "api_key → [REDACTED]" },
-    { title: "3. Compare", body: "Baseline and candidate prompts run on the same cases. Task success, groundedness, latency and cost sit side by side, and the gate decides.", color: "#f97316", mini: "gate exits 1 on a regression" },
+    { title: "1. Decoy", body: "Inert web admin, SSH-like and fake DB services run on an isolated network. Anything that touches them is suspicious by definition.", color: "#8b5cf6", mini: "decoy › request › event" },
+    { title: "2. Capture", body: "Credentials are reduced to a user class and length plus a keyed hash. Raw passwords are never stored.", color: "#f59e0b", mini: "password → [REDACTED]" },
+    { title: "3. Classify", body: "Events link into sessions, sessions into actors, and rules map behavior to ATT&CK with evidence.", color: "#f97316", mini: "rule fired · tactic · technique" },
   ];
   return (
     <section className="sec" id="how">
       <div className="wrap">
-        <h2>Three steps. <span className="m">One <i className="ico" style={{ "--c": "#22c55e" } as React.CSSProperties}><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i> regression trail.</span></h2>
-        <p className="lead2">Every run becomes one trace, and every trace is scored against the same expected facts.</p>
+        <h2>Three steps. <span className="m">One <i className="ico" style={{ "--c": "#22c55e" } as React.CSSProperties}><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i> deception trail.</span></h2>
+        <p className="lead2">Every touch becomes an event, and every event is scored against transparent rules.</p>
         <div className="steps">
           {steps.map((s) => (
             <div className="step" key={s.title}>

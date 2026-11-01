@@ -20,8 +20,8 @@ export function Simulator() {
   return (
     <section className="sec" id="try">
       <div className="wrap">
-        <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.6rem)", letterSpacing: "-0.035em", lineHeight: 1.05, maxWidth: "18ch" }}>Beacon lab</h2>
-        <p style={{ marginTop: 12, color: "var(--mu)", maxWidth: "60ch" }}>Generate synthetic flows and run a TypeScript port of the real beacon detector.</p>
+        <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.6rem)", letterSpacing: "-0.035em", lineHeight: 1.05, maxWidth: "18ch" }}>Deception lab</h2>
+        <p style={{ marginTop: 12, color: "var(--mu)", maxWidth: "60ch" }}>Run scripted benign actors against three on-screen decoys with a TypeScript port of the session builder.</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 24 }}>
           <div style={{ background: "var(--p)", border: "1px solid var(--ln)", borderRadius: 16, padding: 20 }}>
             <label>Period (s): {period}<br /><input type="range" min={5} max={120} value={period} onChange={(e) => setPeriod(+e.target.value)} /></label><br />

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTour } from "../features/tour/useTour";
 
-const TABS = ["Ingest", "Hash", "Features", "Split", "Evaluate"];
+const TABS = ["Decoy", "Capture", "Classify", "Map", "Contain"];
 
 export function Window() {
   const { index, setIndex, paused, setPaused } = useTour(TABS.length, 7000);
@@ -53,18 +53,18 @@ export function Window() {
           <h3 style={{ fontSize: "1.02rem", fontWeight: 600 }}>{TABS[index]}</h3>
           <p style={{ fontSize: "0.8rem", color: "var(--mu)", marginTop: 1 }}>Auto-playing tour</p>
           <p style={{ margin: "16px 0", fontSize: "0.93rem", color: "var(--mu)" }}>
-            {index === 0 && "One request becomes one trace. Each step is a span linked to its parent."}
-            {index === 1 && "IPs become h:... HMAC ids before storage."}
-            {index === 2 && "Size/IAT histograms and a 64x3 sequence tensor."}
-            {index === 3 && "S1 caution vs S3 time vs S4 dataset vs S5 environment."}
-            {index === 4 && "Macro-F1, PR-AUC, ECE bars, baseline vs perturbed."}
+            {index === 0 && "Inert web admin, SSH-like and fake DB services."}
+            {index === 1 && "Credentials reduced to length and keyed hash."}
+            {index === 2 && "Rule-based session labels with the rule that fired."}
+            {index === 3 && "Labels mapped to ATT&CK tactic/technique rows."}
+            {index === 4 && "Compose controls checked before and after start; panic."}
           </p>
           <div style={{ background: "#0a0a0b", border: "1px solid var(--ln)", borderRadius: 12, padding: 14, fontFamily: "var(--fm)", fontSize: "0.8rem", color: "var(--mu)" }}>
-            {index === 0 && "trace › agent › retrieval · tool · llm"}
-            {index === 1 && 'api_key → [REDACTED]'}
-            {index === 2 && "64 x 3 tensor (size, interval, flags)"}
-            {index === 3 && "assert_group_disjoint(train, test)"}
-            {index === 4 && "exit code 1 on regression"}
+            {index === 0 && "decoy › request › event"}
+            {index === 1 && 'password → [REDACTED]'}
+            {index === 2 && "rule fired · confidence"}
+            {index === 3 && "T1595.002 · T1110.001"}
+            {index === 4 && "panic requires STOP GHOSTNET"}
           </div>
         </div>
         <div style={{ padding: 20, borderLeft: "1px solid var(--ln)", background: "#101012" }}>

@@ -8,17 +8,17 @@ export function QuickStart() {
           <div className="step">
             <h3>1. Set up</h3>
             <p>Create a virtual environment and activate it.</p>
-            <div className="code"><span className="c"># PowerShell</span><br />uv sync --extra dev<br />cp .env.example .env</div>
+            <div className="code"><span className="c"># PowerShell</span><br />uv sync --extra dev<br />copy .env.example .env</div>
           </div>
           <div className="step">
             <h3>2. Record and serve</h3>
             <p>Record both prompt runs, then open the dashboard on loopback.</p>
-            <div className="code">make demo<br />make evaluate<br /><span className="c"># 127.0.0.1:8000</span></div>
+            <div className="code">python -m ghostnet.orchestrator.lifecycle up<br /><span className="c"># runs containment checks</span></div>
           </div>
           <div className="step">
             <h3>3. Gate the build</h3>
             <p>Exit 1 on a regression, or allow a task-success drop.</p>
-            <div className="code">uv run uvicorn cipherscope.api.main:create_app --factory<br />cd site && npm run dev</div>
+            <div className="code">python testactors/local_demo.py<br />cd dashboard && npm ci && npm run dev</div>
           </div>
         </div>
       </div>

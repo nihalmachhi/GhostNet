@@ -4,8 +4,8 @@ export function Footer() {
       <div className="foot">
         <div className="fcols">
           <div>
-            <a className="brand" href="#top">CipherScope</a>
-            <p className="tg">A local, synthetic tracer and regression tester for AI agents.</p>
+            <a className="brand" href="#top">GhostNet</a>
+            <p className="tg">A contained defensive deception and behavior analysis lab.</p>
           </div>
           <div>
             <h5>Product</h5>
@@ -24,7 +24,7 @@ export function Footer() {
           <span>Synthetic demo. Scores, costs and latencies are illustrative, not real model quality or provider pricing.</span>
           <span>Python · SQLite · JSON · MIT License</span>
         </div>
-        <div className="mark" aria-hidden="true">CipherScope</div>
+        <div className="mark" aria-hidden="true">GhostNet</div>
       </div>
     </footer>
   );

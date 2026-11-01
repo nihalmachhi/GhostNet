@@ -1,4 +1,4 @@
-const stages = ["PCAP", "Headers only", "Flows", "HMAC ids", "Features", "Splits", "Models", "Report", "API + UI"];
+const stages = ["Decoys", "Edge proxy", "Ingest API", "Event store", "Sessions", "Rules", "ATT&CK", "Admin API", "Dashboard"];
 
 export function Cta() {
   const boxWidth = 112;
