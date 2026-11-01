@@ -16,3 +16,5 @@ data/
 dashboard/node_modules/
 dashboard/dist/
 dashboard/*.tsbuildinfo
+!site/src/data/
+!site/src/data/**
