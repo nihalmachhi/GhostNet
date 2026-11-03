@@ -1,17 +1,15 @@
 from __future__ import annotations
 
+from importlib.resources import files
 from pathlib import Path
 
 import yaml
 
 
 def map_behavior(label: str, rules_path: str | Path | None = None) -> list[dict[str, str]]:
-    path = (
-        Path(rules_path)
-        if rules_path
-        else Path(__file__).resolve().parents[1] / "rules" / "attack_map.yaml"
-    )
-    mapping: dict[str, list[dict[str, str]]] = (
-        yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    )
+    if rules_path is not None:
+        raw = Path(rules_path).read_text(encoding="utf-8")
+    else:
+        raw = files("ghostnet.rules").joinpath("attack_map.yaml").read_text(encoding="utf-8")
+    mapping: dict[str, list[dict[str, str]]] = yaml.safe_load(raw) or {}
     return mapping.get(label, [])
