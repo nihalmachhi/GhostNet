@@ -17,7 +17,7 @@ jobs:
       GHOSTNET_ADMIN_TOKEN: ci-only-admin-token-0001
       GHOSTNET_CHAIN_KEY: ci-only-chain-key-0001
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
@@ -30,7 +30,7 @@ jobs:
   site:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -54,6 +54,6 @@ jobs:
       GHOSTNET_ADMIN_TOKEN: ci-only-admin-token-0001
       GHOSTNET_CHAIN_KEY: ci-only-chain-key-0001
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: docker compose config -q
       - run: docker compose build
