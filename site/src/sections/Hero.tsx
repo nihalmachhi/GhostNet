@@ -1,5 +1,5 @@
-import { content } from "../data/content";
 import { Window } from "../components/Window";
+import { content, DOCS, GITHUB } from "../data/content";
 
 export function Hero() {
   return (
@@ -7,8 +7,15 @@ export function Hero() {
       <h1>{content.hero.headline}</h1>
       <p>{content.hero.subcopy}</p>
       <div className="cta">
-        <a className="pill w" href="#start">Run it locally</a>
-        <a className="pill" href="https://github.com/nihalmachhi/CipherScope">View on GitHub</a>
+        <a className="pill w" href="#start">
+          {content.hero.primary}
+        </a>
+        <a className="pill" href={DOCS}>
+          {content.hero.secondary}
+        </a>
+        <a className="pill" href={GITHUB}>
+          {content.nav.githubLabel}
+        </a>
       </div>
       <div className="wrap">
         <Window />

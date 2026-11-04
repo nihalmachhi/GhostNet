@@ -1,57 +1,131 @@
 {
-  "random_split": {
-    "macro_f1": 0.992162223741171,
-    "std": 0.0
+  "accuracy": 0.9091,
+  "boundary_case": {
+    "attack": [],
+    "event_count": 4,
+    "expected": "scripted_interaction",
+    "predicted": "interactive_exploration",
+    "rule_id": "interactive_exploration",
+    "rule_score": 0.5,
+    "scenario": "scripted_interaction_jittered"
   },
-  "cross_environment": {
-    "macro_f1": 0.9444088987676841,
-    "std": 0.00551422685617025
+  "containment": {
+    "failures": [],
+    "passed": true,
+    "path": "docker-compose.yml"
   },
-  "robustness": {
-    "clean": {
-      "macro_f1": 0.9388846447669977,
-      "accuracy": 0.9266666666666666
+  "data_kind": "synthetic",
+  "labels": [
+    {
+      "attack": [],
+      "f1": 1.0,
+      "label": "benign_noise",
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 1
     },
-    "padding_10pct": {
-      "macro_f1": 0.9388846447669977,
-      "accuracy": 0.9266666666666666
+    {
+      "attack": [
+        {
+          "evidence": [
+            "a known canary token was used"
+          ],
+          "name": "Unsecured Credentials",
+          "tactic": "Credential Access",
+          "technique": "T1552"
+        }
+      ],
+      "f1": 1.0,
+      "label": "canary_followup",
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 1
     },
-    "padding_30pct": {
-      "macro_f1": 0.9333148096693527,
-      "accuracy": 0.92
+    {
+      "attack": [
+        {
+          "evidence": [
+            "four or more authentication attempts in one session"
+          ],
+          "name": "Password Guessing",
+          "tactic": "Credential Access",
+          "technique": "T1110.001"
+        }
+      ],
+      "f1": 1.0,
+      "label": "credential_guessing",
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 1
     },
-    "padding_50pct": {
-      "macro_f1": 0.9333148096693527,
-      "accuracy": 0.92
+    {
+      "attack": [
+        {
+          "evidence": [
+            "four or more attempts using three or more usernames"
+          ],
+          "name": "Credential Stuffing",
+          "tactic": "Credential Access",
+          "technique": "T1110.004"
+        }
+      ],
+      "f1": 1.0,
+      "label": "credential_stuffing",
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 2
     },
-    "jitter_50ms": {
-      "macro_f1": 0.9054964908623445,
-      "accuracy": 0.8866666666666667
+    {
+      "attack": [
+        {
+          "evidence": [
+            "a web path matched a known exploit-probe pattern"
+          ],
+          "name": "Exploit Public-Facing Application",
+          "tactic": "Initial Access",
+          "technique": "T1190"
+        }
+      ],
+      "f1": 1.0,
+      "label": "exploit_attempt",
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 1
     },
-    "jitter_200ms": {
-      "macro_f1": 0.9166608792277241,
-      "accuracy": 0.9
+    {
+      "attack": [],
+      "f1": 0.6667,
+      "label": "interactive_exploration",
+      "precision": 0.5,
+      "recall": 1.0,
+      "support": 1
     },
-    "jitter_500ms": {
-      "macro_f1": 0.9720650883441581,
-      "accuracy": 0.9666666666666667
+    {
+      "attack": [
+        {
+          "evidence": [
+            "connection attempts against an inert decoy service"
+          ],
+          "name": "Vulnerability Scanning",
+          "tactic": "Reconnaissance",
+          "technique": "T1595.002"
+        }
+      ],
+      "f1": 1.0,
+      "label": "scan_discovery",
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 2
     },
-    "first_4_packets": {
-      "macro_f1": 0.6196520061214984,
-      "accuracy": 0.72
-    },
-    "first_8_packets": {
-      "macro_f1": 0.9388846447669977,
-      "accuracy": 0.9266666666666666
-    },
-    "first_16_packets": {
-      "macro_f1": 0.9388846447669977,
-      "accuracy": 0.9266666666666666
-    },
-    "first_32_packets": {
-      "macro_f1": 0.9388846447669977,
-      "accuracy": 0.9266666666666666
+    {
+      "attack": [],
+      "f1": 0.6667,
+      "label": "scripted_interaction",
+      "precision": 1.0,
+      "recall": 0.5,
+      "support": 2
     }
-  },
-  "data_kind": "synthetic"
+  ],
+  "macro_f1": 0.9167,
+  "scenarios": 11
 }

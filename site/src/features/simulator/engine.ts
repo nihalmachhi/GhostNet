@@ -1,57 +1,141 @@
-export interface PeriodicityResult {
+import attackData from "./__fixtures__/attack_map.generated.json";
+import rulesData from "./__fixtures__/rules.generated.json";
+
+export type FeatureKey =
+  | "n_events"
+  | "n_auth"
+  | "n_unique_users"
+  | "n_commands"
+  | "duration_s"
+  | "iat_cv"
+  | "has_token"
+  | "exploit_paths";
+
+export type Features = Record<FeatureKey, number | boolean>;
+
+export type Condition = number | boolean | Record<string, number>;
+
+export interface Rule {
+  id: string;
+  label: string;
   score: number;
-  period_s: number;
-  interval_cv: number;
-  within_ten_percent: number;
-  mad_s: number;
-  robust_cv: number;
-  autocorrelation: number;
+  when: Partial<Record<FeatureKey, Condition>>;
+  evidence: string[];
 }
 
-function median(values: number[]): number {
-  if (values.length === 0) return 0;
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+export interface Classification {
+  label: string;
+  rule_id: string;
+  rule_score: number;
+  rule_evidence: string[];
 }
 
-function lagAutocorrelation(values: number[], lag = 1): number {
-  if (values.length <= lag) return 0;
-  const left = values.slice(0, values.length - lag);
-  const right = values.slice(lag);
-  const lm = left.reduce((a, b) => a + b, 0) / left.length;
-  const rm = right.reduce((a, b) => a + b, 0) / right.length;
-  const num = left.reduce((s, v, i) => s + (v - lm) * (right[i] - rm), 0);
-  const lv = left.reduce((s, v) => s + (v - lm) ** 2, 0);
-  const rv = right.reduce((s, v) => s + (v - rm) ** 2, 0);
-  const den = Math.sqrt(lv * rv);
-  if (den === 0) return 1;
-  return Math.max(-1, Math.min(1, num / den));
+export interface AttackMapping {
+  tactic: string;
+  technique: string;
+  name: string;
+  evidence: string[];
 }
 
-export function periodicityScore(times: number[]): PeriodicityResult {
-  const ordered = [...times].sort((a, b) => a - b);
-  const intervals = ordered.slice(1).map((v, i) => v - ordered[i]);
-  if (intervals.length < 3) {
-    return { score: 0, period_s: 0, interval_cv: 0, within_ten_percent: 0, mad_s: 0, robust_cv: 0, autocorrelation: 0 };
+export const RULES = rulesData as Rule[];
+export const ATTACK_MAP = attackData as Record<string, AttackMapping[]>;
+
+const OPS: Record<string, (left: number, right: number) => boolean> = {
+  gte: (left, right) => left >= right,
+  gt: (left, right) => left > right,
+  lte: (left, right) => left <= right,
+  lt: (left, right) => left < right,
+  eq: (left, right) => left === right,
+  ne: (left, right) => left !== right,
+};
+
+export function matches(features: Partial<Features>, condition: Partial<Record<FeatureKey, Condition>>): boolean {
+  for (const [key, expected] of Object.entries(condition)) {
+    const actual = features[key as FeatureKey];
+    if (actual === undefined) return false;
+    if (typeof expected === "object" && expected !== null) {
+      if (typeof actual !== "number") return false;
+      for (const [op, value] of Object.entries(expected)) {
+        const compare = OPS[op];
+        if (!compare || !compare(actual, value)) return false;
+      }
+    } else if (actual !== expected) {
+      return false;
+    }
   }
-  const center = median(intervals);
-  const deviations = intervals.map((v) => Math.abs(v - center));
-  const mad = median(deviations);
-  const robust_cv = center ? (1.4826 * mad) / center : 0;
-  const mean = intervals.reduce((a, b) => a + b, 0) / intervals.length;
-  const variance = intervals.reduce((s, v) => s + (v - mean) ** 2, 0) / intervals.length;
-  const classic_cv = center ? Math.sqrt(variance) / center : 0;
-  const regular = intervals.filter((v) => Math.abs(v - center) <= center * 0.1).length / intervals.length;
-  const autocorrelation = lagAutocorrelation(intervals);
-  const score = 0.55 * regular + 0.3 * (1 - Math.min(robust_cv, 1)) + 0.15 * Math.max(0, autocorrelation);
+  return true;
+}
+
+export function classify(features: Features): Classification {
+  for (const rule of RULES) {
+    if (matches(features, rule.when)) {
+      return {
+        label: rule.label,
+        rule_id: rule.id,
+        rule_score: rule.score,
+        rule_evidence: rule.evidence,
+      };
+    }
+  }
   return {
-    score: Math.max(0, Math.min(1, Number(score.toFixed(4)))),
-    period_s: Number(center.toFixed(3)),
-    interval_cv: Number(classic_cv.toFixed(4)),
-    within_ten_percent: Number(regular.toFixed(4)),
-    mad_s: Number(mad.toFixed(4)),
-    robust_cv: Number(robust_cv.toFixed(4)),
-    autocorrelation: Number(autocorrelation.toFixed(4)),
+    label: "benign_noise",
+    rule_id: "fallback",
+    rule_score: 0.1,
+    rule_evidence: ["no rule matched"],
   };
 }
+
+export function attackFor(label: string): AttackMapping[] {
+  return ATTACK_MAP[label] ?? [];
+}
+
+export interface ScenarioInput {
+  auth: number;
+  users: number;
+  commands: number;
+  exploits: number;
+  duration: number;
+  regularity: number;
+  canary: boolean;
+}
+
+export function buildFeatures(input: ScenarioInput): Features {
+  const n_auth = Math.max(0, Math.round(input.auth));
+  const n_unique_users = Math.max(0, Math.min(n_auth, Math.round(input.users)));
+  const n_commands = Math.max(0, Math.round(input.commands));
+  const exploit_paths = Math.max(0, Math.round(input.exploits));
+  const n_events = Math.max(1, n_auth + n_commands + exploit_paths + 1);
+  return {
+    n_events,
+    n_auth,
+    n_unique_users,
+    n_commands,
+    duration_s: Math.max(0, input.duration),
+    iat_cv: Math.max(0, Math.min(2, (100 - input.regularity) / 100)),
+    has_token: input.canary,
+    exploit_paths,
+  };
+}
+
+export const PRESETS: Array<{ name: string; input: ScenarioInput }> = [
+  {
+    name: "Credential stuffing",
+    input: { auth: 5, users: 5, commands: 0, exploits: 0, duration: 4, regularity: 90, canary: false },
+  },
+  {
+    name: "Canary follow-up",
+    input: { auth: 0, users: 0, commands: 0, exploits: 0, duration: 1, regularity: 90, canary: true },
+  },
+  {
+    name: "Exploit probe",
+    input: { auth: 0, users: 0, commands: 0, exploits: 1, duration: 4, regularity: 40, canary: false },
+  },
+  {
+    name: "Scripted commands",
+    input: { auth: 0, users: 0, commands: 4, exploits: 0, duration: 6, regularity: 95, canary: false },
+  },
+  {
+    name: "Benign noise",
+    input: { auth: 0, users: 0, commands: 0, exploits: 0, duration: 4, regularity: 40, canary: false },
+  },
+];

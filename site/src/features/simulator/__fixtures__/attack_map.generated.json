@@ -1,0 +1,52 @@
+{
+  "canary_followup": [
+    {
+      "evidence": [
+        "a known canary token was used"
+      ],
+      "name": "Unsecured Credentials",
+      "tactic": "Credential Access",
+      "technique": "T1552"
+    }
+  ],
+  "credential_guessing": [
+    {
+      "evidence": [
+        "four or more authentication attempts in one session"
+      ],
+      "name": "Password Guessing",
+      "tactic": "Credential Access",
+      "technique": "T1110.001"
+    }
+  ],
+  "credential_stuffing": [
+    {
+      "evidence": [
+        "four or more attempts using three or more usernames"
+      ],
+      "name": "Credential Stuffing",
+      "tactic": "Credential Access",
+      "technique": "T1110.004"
+    }
+  ],
+  "exploit_attempt": [
+    {
+      "evidence": [
+        "a web path matched a known exploit-probe pattern"
+      ],
+      "name": "Exploit Public-Facing Application",
+      "tactic": "Initial Access",
+      "technique": "T1190"
+    }
+  ],
+  "scan_discovery": [
+    {
+      "evidence": [
+        "connection attempts against an inert decoy service"
+      ],
+      "name": "Vulnerability Scanning",
+      "tactic": "Reconnaissance",
+      "technique": "T1595.002"
+    }
+  ]
+}

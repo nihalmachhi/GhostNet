@@ -1,0 +1,191 @@
+[
+  {
+    "expected": {
+      "label": "canary_followup",
+      "rule_evidence": [
+        "a known canary token was used"
+      ],
+      "rule_id": "canary_followup",
+      "rule_score": 0.99
+    },
+    "features": {
+      "duration_s": 1.0,
+      "exploit_paths": 0,
+      "has_token": true,
+      "iat_cv": 0.0,
+      "n_auth": 0,
+      "n_commands": 0,
+      "n_events": 2,
+      "n_unique_users": 0
+    },
+    "name": "canary_followup"
+  },
+  {
+    "expected": {
+      "label": "exploit_attempt",
+      "rule_evidence": [
+        "a web path matched a known exploit-probe pattern"
+      ],
+      "rule_id": "exploit_attempt",
+      "rule_score": 0.9
+    },
+    "features": {
+      "duration_s": 4.0,
+      "exploit_paths": 1,
+      "has_token": false,
+      "iat_cv": 1.0,
+      "n_auth": 0,
+      "n_commands": 0,
+      "n_events": 3,
+      "n_unique_users": 0
+    },
+    "name": "exploit_attempt"
+  },
+  {
+    "expected": {
+      "label": "credential_stuffing",
+      "rule_evidence": [
+        "four or more authentication attempts used three or more usernames"
+      ],
+      "rule_id": "credential_stuffing",
+      "rule_score": 0.92
+    },
+    "features": {
+      "duration_s": 4.0,
+      "exploit_paths": 0,
+      "has_token": false,
+      "iat_cv": 0.0,
+      "n_auth": 5,
+      "n_commands": 0,
+      "n_events": 5,
+      "n_unique_users": 5
+    },
+    "name": "credential_stuffing"
+  },
+  {
+    "expected": {
+      "label": "credential_guessing",
+      "rule_evidence": [
+        "four or more authentication attempts in one session"
+      ],
+      "rule_id": "credential_guessing",
+      "rule_score": 0.85
+    },
+    "features": {
+      "duration_s": 3.0,
+      "exploit_paths": 0,
+      "has_token": false,
+      "iat_cv": 0.0,
+      "n_auth": 4,
+      "n_commands": 0,
+      "n_events": 4,
+      "n_unique_users": 1
+    },
+    "name": "credential_guessing"
+  },
+  {
+    "expected": {
+      "label": "scan_discovery",
+      "rule_evidence": [
+        "a short session touched the decoy with at most two events"
+      ],
+      "rule_id": "scan_discovery",
+      "rule_score": 0.68
+    },
+    "features": {
+      "duration_s": 0.0,
+      "exploit_paths": 0,
+      "has_token": false,
+      "iat_cv": 0.0,
+      "n_auth": 0,
+      "n_commands": 0,
+      "n_events": 1,
+      "n_unique_users": 0
+    },
+    "name": "scan_discovery"
+  },
+  {
+    "expected": {
+      "label": "scripted_interaction",
+      "rule_evidence": [
+        "three or more commands arrived with low inter-arrival variance"
+      ],
+      "rule_id": "scripted_interaction",
+      "rule_score": 0.6
+    },
+    "features": {
+      "duration_s": 6.0,
+      "exploit_paths": 0,
+      "has_token": false,
+      "iat_cv": 0.0,
+      "n_auth": 0,
+      "n_commands": 4,
+      "n_events": 4,
+      "n_unique_users": 0
+    },
+    "name": "scripted_interaction"
+  },
+  {
+    "expected": {
+      "label": "interactive_exploration",
+      "rule_evidence": [
+        "two or more commands over at least five seconds"
+      ],
+      "rule_id": "interactive_exploration",
+      "rule_score": 0.5
+    },
+    "features": {
+      "duration_s": 8.0,
+      "exploit_paths": 0,
+      "has_token": false,
+      "iat_cv": 1.0,
+      "n_auth": 0,
+      "n_commands": 2,
+      "n_events": 3,
+      "n_unique_users": 0
+    },
+    "name": "interactive_exploration"
+  },
+  {
+    "expected": {
+      "label": "benign_noise",
+      "rule_evidence": [
+        "no behavior rule matched; treat as unclassified lab noise"
+      ],
+      "rule_id": "benign_noise",
+      "rule_score": 0.2
+    },
+    "features": {
+      "duration_s": 4.0,
+      "exploit_paths": 0,
+      "has_token": false,
+      "iat_cv": 1.0,
+      "n_auth": 0,
+      "n_commands": 0,
+      "n_events": 2,
+      "n_unique_users": 0
+    },
+    "name": "benign_noise"
+  },
+  {
+    "expected": {
+      "label": "interactive_exploration",
+      "rule_evidence": [
+        "two or more commands over at least five seconds"
+      ],
+      "rule_id": "interactive_exploration",
+      "rule_score": 0.5
+    },
+    "features": {
+      "duration_s": 9.5,
+      "exploit_paths": 0,
+      "has_token": false,
+      "iat_cv": 0.9,
+      "n_auth": 0,
+      "n_commands": 4,
+      "n_events": 4,
+      "n_unique_users": 0
+    },
+    "name": "jittered_scripted_boundary"
+  }
+]

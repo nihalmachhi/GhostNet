@@ -1,42 +1,173 @@
 import { useState } from "react";
-import { periodicityScore } from "../features/simulator/engine";
+import { content } from "../data/content";
+import {
+  attackFor,
+  buildFeatures,
+  classify,
+  PRESETS,
+  type ScenarioInput,
+} from "../features/simulator/engine";
 
-function buildBeacon(period: number, jitter: number, n: number): number[] {
-  const out: number[] = [];
-  for (let i = 0; i < n; i++) {
-    out.push(i * period + (Math.sin(i) * jitter * period) / 100);
-  }
-  return out;
+const copy = content.simulator;
+
+function Slider(props: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  suffix?: string;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <label style={{ display: "grid", gap: 4, marginBottom: 12 }}>
+      <span>
+        {props.label}: <b>{props.value}{props.suffix ?? ""}</b>
+      </span>
+      <input
+        type="range"
+        min={props.min}
+        max={props.max}
+        step={props.step ?? 1}
+        value={props.value}
+        onChange={(event) => props.onChange(Number(event.target.value))}
+      />
+    </label>
+  );
 }
 
 export function Simulator() {
-  const [period, setPeriod] = useState(30);
-  const [jitter, setJitter] = useState(5);
-  const [threshold, setThreshold] = useState(0.75);
-  const [n, setN] = useState(8);
-  const times = buildBeacon(period, jitter, n);
-  const res = periodicityScore(times);
-  const fires = res.score >= threshold;
+  const [input, setInput] = useState<ScenarioInput>(PRESETS[0].input);
+  const features = buildFeatures(input);
+  const result = classify(features);
+  const attack = attackFor(result.label);
+  const set = <K extends keyof ScenarioInput,>(key: K, value: ScenarioInput[K]) =>
+    setInput((current) => ({ ...current, [key]: value }));
+
+  const timeline = [
+    ...Array.from({ length: Number(features.n_auth) }, () => "auth"),
+    ...Array.from({ length: Number(features.n_commands) }, () => "command"),
+    ...Array.from({ length: Number(features.exploit_paths) }, () => "exploit"),
+    ...(input.canary ? ["canary"] : []),
+    "open",
+  ];
+
   return (
     <section className="sec" id="try">
       <div className="wrap">
-        <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.6rem)", letterSpacing: "-0.035em", lineHeight: 1.05, maxWidth: "18ch" }}>Deception lab</h2>
-        <p style={{ marginTop: 12, color: "var(--mu)", maxWidth: "60ch" }}>Run scripted benign actors against three on-screen decoys with a TypeScript port of the session builder.</p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 24 }}>
-          <div style={{ background: "var(--p)", border: "1px solid var(--ln)", borderRadius: 16, padding: 20 }}>
-            <label>Period (s): {period}<br /><input type="range" min={5} max={120} value={period} onChange={(e) => setPeriod(+e.target.value)} /></label><br />
-            <label>Jitter (%): {jitter}<br /><input type="range" min={0} max={60} value={jitter} onChange={(e) => setJitter(+e.target.value)} /></label><br />
-            <label>Connections: {n}<br /><input type="range" min={4} max={20} value={n} onChange={(e) => setN(+e.target.value)} /></label><br />
-            <label>Threshold: {threshold.toFixed(2)}<br /><input type="range" min={0.5} max={0.95} step={0.05} value={threshold} onChange={(e) => setThreshold(+e.target.value)} /></label>
-            <button onClick={() => { setJitter(60); setPeriod(30); }} style={{ marginTop: 12, padding: "6px 12px", borderRadius: 8, border: "1px solid var(--ln)", background: "var(--p2)", color: "var(--fg)", cursor: "pointer" }}>Make it evade</button>
+        <h2>{copy.heading}</h2>
+        <p className="lead2">{copy.intro}</p>
+        <div className="sim">
+          <div className="shead">
+            <span>{copy.timeline}</span>
+            <span>
+              {features.n_events} {copy.events} · iat_cv {Number(features.iat_cv).toFixed(2)}
+            </span>
           </div>
-          <div style={{ background: "var(--p)", border: "1px solid var(--ln)", borderRadius: 16, padding: 20, fontFamily: "var(--fm)", fontSize: "0.85rem" }}>
-            <div>score: {res.score}</div>
-            <div>period_s: {res.period_s}</div>
-            <div>within 10%: {res.within_ten_percent}</div>
-            <div>robust_cv: {res.robust_cv}</div>
-            <div style={{ marginTop: 12, color: fires ? "var(--bad)" : "var(--ok)" }}>{fires ? "Alert fires" : "No alert"}</div>
+
+          <div className="stats">
+            <div className="stat">
+              <b>{features.n_auth}</b>
+              <span>{copy.controls.auth}</span>
+            </div>
+            <div className="stat">
+              <b>{features.n_unique_users}</b>
+              <span>{copy.controls.users}</span>
+            </div>
+            <div className="stat">
+              <b>{features.n_commands}</b>
+              <span>{copy.controls.commands}</span>
+            </div>
+            <div className="stat">
+              <b>{features.duration_s}s</b>
+              <span>{copy.controls.duration}</span>
+            </div>
           </div>
+
+          <div className="scols">
+            <div>
+              <div className="ctl" style={{ marginBottom: 14 }}>
+                {PRESETS.map((preset) => (
+                  <button
+                    key={preset.name}
+                    className="cell"
+                    onClick={() => setInput(preset.input)}
+                    aria-pressed={JSON.stringify(preset.input) === JSON.stringify(input)}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+              <Slider label={copy.controls.auth} value={input.auth} min={0} max={8} onChange={(value) => set("auth", value)} />
+              <Slider label={copy.controls.users} value={input.users} min={0} max={8} onChange={(value) => set("users", value)} />
+              <Slider label={copy.controls.commands} value={input.commands} min={0} max={8} onChange={(value) => set("commands", value)} />
+              <Slider label={copy.controls.exploits} value={input.exploits} min={0} max={3} onChange={(value) => set("exploits", value)} />
+              <Slider label={copy.controls.duration} value={input.duration} min={0} max={30} onChange={(value) => set("duration", value)} />
+              <Slider label={copy.controls.regularity} value={input.regularity} min={0} max={100} suffix="%" onChange={(value) => set("regularity", value)} />
+              <label style={{ display: "flex", gap: 8, alignItems: "center", color: "var(--mu)", fontSize: "0.85rem" }}>
+                <input
+                  type="checkbox"
+                  checked={input.canary}
+                  onChange={(event) => set("canary", event.target.checked)}
+                />
+                {copy.controls.canary}
+              </label>
+            </div>
+
+            <div>
+              <div className="term" style={{ marginTop: 0 }}>
+                <div style={{ color: "var(--fg)", fontSize: "1.1rem", marginBottom: 4 }}>{result.label}</div>
+                <div>{copy.result.rule}: {result.rule_id}</div>
+                <div>{copy.result.score}: {result.rule_score.toFixed(2)}</div>
+                <div style={{ marginTop: 8 }}>{copy.result.evidence}: {result.rule_evidence.join("; ")}</div>
+              </div>
+
+              <div style={{ marginTop: 14 }}>
+                {timeline.map((kind, index) => (
+                  <span
+                    key={`${kind}-${index}`}
+                    className="chip"
+                    style={{
+                      borderColor:
+                        kind === "auth"
+                          ? "#f59e0b"
+                          : kind === "command"
+                            ? "#22c55e"
+                            : kind === "exploit"
+                              ? "#ef4444"
+                              : kind === "canary"
+                                ? "#8b5cf6"
+                                : "#242428",
+                      color: "var(--mu)",
+                    }}
+                  >
+                    {kind}
+                  </span>
+                ))}
+              </div>
+
+              <div className="evp">
+                <b>{copy.result.attack}</b>
+                {attack.length === 0 ? (
+                  <p style={{ color: "var(--mu)", marginTop: 6 }}>{copy.result.noAttack}</p>
+                ) : (
+                  <dl>
+                    {attack.map((row) => (
+                      <div key={row.technique} style={{ display: "contents" }}>
+                        <dt>{row.technique}</dt>
+                        <dd>
+                          {row.tactic} · {row.name}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </div>
+            </div>
+          </div>
+          <p className="note" style={{ textAlign: "left", margin: "18px 0 0" }}>
+            {copy.result.note}
+          </p>
         </div>
       </div>
     </section>
