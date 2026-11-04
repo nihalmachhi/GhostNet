@@ -21,7 +21,13 @@ containment:
 evaluate:
 	uv run python -m ghostnet.evaluation
 
+fixtures:
+	uv run python site/scripts/export_fixtures.py
+
+generated: evaluate fixtures
+	git diff --exit-code -- docs/evaluation.json docs/evaluation.md site/src/data/results.generated.json site/src/features/simulator/__fixtures__
+
 site:
 	cd site && npm ci && npm run lint && npm run typecheck && npm test -- --run && npm run build
 
-verify: lint coverage containment evaluate site
+verify: lint coverage containment generated site

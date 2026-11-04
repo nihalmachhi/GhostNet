@@ -51,8 +51,13 @@ and should be stated whenever the project is described.
 ## Verification gaps
 
 - On the development machine for this pass, Docker Desktop's Linux engine was not
-  running. Static Compose validation and configuration containment checks passed,
-  but image build and live container inspection were not executed locally. CI
-  runs both on GitHub Actions.
+  running. `docker compose config -q` and the static containment checks passed,
+  but `docker compose build`, container startup and live runtime inspection were
+  not executed locally. CI validates the Compose config and builds the images; it
+  does not run a live container smoke test. Treat container runtime behavior as
+  unverified until that check is added or the stack is run locally.
 - The site is tested with Vitest and a production build, not with a browser
   automation suite.
+- `npm audit` reports moderate findings in development-only lint tooling. The
+  production dependency tree reports zero findings, and the affected packages
+  have no non-breaking fix at the time of this pass.

@@ -215,6 +215,7 @@ before drawing conclusions from the output.
 - [API](docs/api.md)
 - [Operations](docs/operations.md)
 - [Testing](docs/testing.md)
+- [Final QA](docs/qa.md)
 - [Synthetic evaluation](docs/evaluation.md)
 - [Limitations](docs/limitations.md)
 

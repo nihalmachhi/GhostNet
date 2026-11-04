@@ -12,6 +12,7 @@ the claims in the README.
 | [API](api.md) | Admin and ingest endpoints, authentication and limits |
 | [Operations](operations.md) | Local setup, lifecycle, panic, exports and metrics |
 | [Testing](testing.md) | Test, lint, type-check, coverage and CI commands |
+| [Final QA](qa.md) | Point-in-time check results, fresh-clone run and gaps |
 | [Evaluation](evaluation.md) | Generated synthetic evaluation report |
 | [Limitations](limitations.md) | Honest scope and known weaknesses |
 

@@ -13,11 +13,19 @@ uv run mypy src
 uv run pytest -q --cov=ghostnet --cov-report=term-missing
 uv run python -m ghostnet.orchestrator.containment_check
 uv run python -m ghostnet.evaluation
+uv run python site/scripts/export_fixtures.py
 ```
 
 The Python suite enforces 80% branch coverage. The current run is above that
 threshold; the exact number is printed by the coverage command and recorded in
 the CI log.
+
+## Generated artifacts
+
+`ghostnet.evaluation` writes `docs/evaluation.json` and `docs/evaluation.md`.
+`site/scripts/export_fixtures.py` writes the site result card and the simulator
+fixtures from the same Python rules. Both are deterministic; CI regenerates them
+and fails if the working tree changes, so the site cannot drift from the backend.
 
 ## What is covered
 
@@ -71,7 +79,8 @@ backend rules.
 `.github/workflows/ci.yml` runs three jobs on every push to `main` and every pull
 request:
 
-1. **python** — lint, format check, mypy, coverage-gated tests, containment check.
+1. **python** — lint, format check, mypy, coverage-gated tests, containment check,
+   generated-report regeneration and a drift check.
 2. **site** — npm ci, lint, typecheck, Vitest, production build.
 3. **docker** — `docker compose config -q` and `docker compose build` with
    CI-only secrets.

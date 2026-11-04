@@ -27,6 +27,8 @@ jobs:
       - run: uv run mypy src
       - run: uv run pytest -q --cov=ghostnet --cov-fail-under=80
       - run: uv run python -m ghostnet.evaluation
+      - run: uv run python site/scripts/export_fixtures.py
+      - run: git diff --exit-code -- docs/evaluation.json docs/evaluation.md site/src/data/results.generated.json site/src/features/simulator/__fixtures__
       - run: uv run python -m ghostnet.orchestrator.containment_check
   site:
     runs-on: ubuntu-latest
