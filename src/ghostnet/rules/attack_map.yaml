@@ -1,20 +1,27 @@
-credential_guessing:
-  - tactic: Credential Access
-    technique: T1110
-    name: Brute Force
+# Only map behavior the decoys can actually observe. These are triage labels,
+# not attribution and not probabilities.
 scan_discovery:
   - tactic: Reconnaissance
-    technique: T1595
-    name: Active Scanning
-scripted_interaction:
-  - tactic: Discovery
-    technique: T1082
-    name: System Information Discovery
-interactive_exploration:
-  - tactic: Discovery
-    technique: T1083
-    name: File and Directory Discovery
+    technique: T1595.002
+    name: Vulnerability Scanning
+    evidence: ["connection attempts against an inert decoy service"]
+credential_guessing:
+  - tactic: Credential Access
+    technique: T1110.001
+    name: Password Guessing
+    evidence: ["four or more authentication attempts in one session"]
+credential_stuffing:
+  - tactic: Credential Access
+    technique: T1110.004
+    name: Credential Stuffing
+    evidence: ["four or more attempts using three or more usernames"]
+exploit_attempt:
+  - tactic: Initial Access
+    technique: T1190
+    name: Exploit Public-Facing Application
+    evidence: ["a web path matched a known exploit-probe pattern"]
 canary_followup:
-  - tactic: Collection
-    technique: T1005
-    name: Data from Local System
+  - tactic: Credential Access
+    technique: T1552
+    name: Unsecured Credentials
+    evidence: ["a known canary token was used"]

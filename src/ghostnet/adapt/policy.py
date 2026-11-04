@@ -1,6 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
+from importlib.resources import files
+from typing import Any
+
+import yaml
 
 
 @dataclass(frozen=True)
@@ -12,16 +17,38 @@ class Action:
     parameters: dict[str, str | int]
 
 
-ALLOWED_ACTIONS = {"rotate_fake_credential", "add_lure", "change_banner", "response_delay_ms"}
+@lru_cache(maxsize=1)
+def _allowed() -> dict[str, Any]:
+    raw = files("ghostnet.rules").joinpath("allowed_actions.yaml").read_text(encoding="utf-8")
+    return yaml.safe_load(raw) or {}
+
+
+def allowed_actions() -> set[str]:
+    return {str(item) for item in _allowed().get("actions", [])}
+
+
+def validate_parameters(kind: str, parameters: dict[str, str | int]) -> tuple[bool, str]:
+    """Validate action parameters without raising on hostile input."""
+    if kind == "response_delay_ms":
+        raw = parameters.get("delay_ms", 0)
+        if isinstance(raw, bool) or not isinstance(raw, (int, str)):
+            return False, "delay_ms must be an integer"
+        try:
+            delay = int(raw)
+        except (TypeError, ValueError):
+            return False, "delay_ms must be an integer"
+        limit = int(_allowed().get("max_response_delay_ms", 250))
+        if not 0 <= delay <= limit:
+            return False, f"Response delay must be between 0 and {limit}ms"
+    if kind == "add_lure":
+        text = str(parameters.get("text", ""))
+        if len(text) > int(_allowed().get("max_lure_chars", 280)):
+            return False, "Lure text exceeds the inert-content length limit"
+    return True, "Parameters accepted"
 
 
 def approve(action: Action) -> tuple[bool, str]:
-    if action.kind not in ALLOWED_ACTIONS:
+    """Apply the static allowlist and parameter policy."""
+    if action.kind not in allowed_actions():
         return False, "Action is not in the safe allowlist"
-    if action.kind == "response_delay_ms":
-        delay = int(action.parameters.get("delay_ms", 0))
-        if not 0 <= delay <= 250:
-            return False, "Response delay must be between 0 and 250ms"
-    if action.kind == "add_lure" and len(str(action.parameters.get("text", ""))) > 280:
-        return False, "Lure text exceeds the inert-content length limit"
-    return True, "Approved by static policy"
+    return validate_parameters(action.kind, action.parameters)

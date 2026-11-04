@@ -2,9 +2,14 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from ghostnet.orchestrator.containment_check import check_compose_config, check_runtime
+
+
+def _compose(compose: Path, *args: str) -> int:
+    return subprocess.run(["docker", "compose", "-f", str(compose), *args], check=False).returncode
 
 
 def main() -> int:
@@ -15,19 +20,20 @@ def main() -> int:
         if failures:
             print("Refusing to start: " + ", ".join(failures))
             return 2
+        code = _compose(compose, "up", "--build", "-d")
+        if code:
+            return code
+        time.sleep(3)
         runtime_failures = check_runtime(compose)
         if runtime_failures and not all(
             item.startswith("docker_runtime_unavailable") for item in runtime_failures
         ):
-            print("Refusing to start: " + ", ".join(runtime_failures))
-            return 2
-        return subprocess.run(
-            ["docker", "compose", "-f", str(compose), "up", "--build", "-d"], check=False
-        ).returncode
+            print("Runtime containment failed; stopping the stack: " + ", ".join(runtime_failures))
+            _compose(compose, "down", "--remove-orphans")
+            return 3
+        return 0
     if action == "down":
-        return subprocess.run(
-            ["docker", "compose", "-f", str(compose), "down", "--remove-orphans"], check=False
-        ).returncode
+        return _compose(compose, "down", "--remove-orphans")
     print("Usage: python -m ghostnet.orchestrator.lifecycle [up|down]")
     return 2
 

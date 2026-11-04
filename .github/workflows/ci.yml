@@ -25,7 +25,27 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy src
-      - run: uv run pytest -q --cov=ghostnet --cov-fail-under=30
+      - run: uv run pytest -q --cov=ghostnet --cov-fail-under=80
+      - run: uv run python -m ghostnet.orchestrator.containment_check
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+        working-directory: site
+      - run: npm run lint
+        working-directory: site
+      - run: npm run typecheck
+        working-directory: site
+      - run: npm test -- --run
+        working-directory: site
+      - run: npm run build
+        working-directory: site
   docker:
     runs-on: ubuntu-latest
     env:

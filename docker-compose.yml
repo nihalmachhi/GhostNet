@@ -1,14 +1,42 @@
 services:
-  api:
+  admin-api:
     build: .
-    command: ["uvicorn", "ghostnet.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["uvicorn", "ghostnet.admin_api.main:create_admin_app", "--factory", "--host", "0.0.0.0", "--port", "8001"]
     environment:
       GHOSTNET_DATABASE: /app/data/ghostnet.sqlite3
       GHOSTNET_HASH_KEY: ${GHOSTNET_HASH_KEY:?set in .env}
-      GHOSTNET_API_URL: http://api:8000
-    ports: ["127.0.0.1:8000:8000"]
+      GHOSTNET_CHAIN_KEY: ${GHOSTNET_CHAIN_KEY:?set in .env}
+      GHOSTNET_INGEST_SECRET: ${GHOSTNET_INGEST_SECRET:?set in .env}
+      GHOSTNET_ADMIN_TOKEN: ${GHOSTNET_ADMIN_TOKEN:?set in .env}
+      GHOSTNET_BANDIT_STATE_PATH: /app/data/bandit.json
+    ports: ["127.0.0.1:8000:8001"]
     volumes: [ghostnet_data:/app/data]
-    networks: [control, deception]
+    networks: [control]
+    user: "65534:65534"
+    read_only: true
+    tmpfs: [/tmp:rw,noexec,nosuid,size=16m]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=2)"]
+      interval: 20s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 256M, cpus: "0.75", pids: 64 }
+
+  ingest-api:
+    build: .
+    command: ["uvicorn", "ghostnet.ingest_api.main:create_ingest_app", "--factory", "--host", "0.0.0.0", "--port", "8002"]
+    environment:
+      GHOSTNET_DATABASE: /app/data/ghostnet.sqlite3
+      GHOSTNET_HASH_KEY: ${GHOSTNET_HASH_KEY:?set in .env}
+      GHOSTNET_CHAIN_KEY: ${GHOSTNET_CHAIN_KEY:?set in .env}
+      GHOSTNET_INGEST_SECRET: ${GHOSTNET_INGEST_SECRET:?set in .env}
+      GHOSTNET_ADMIN_TOKEN: ${GHOSTNET_ADMIN_TOKEN:?set in .env}
+    volumes: [ghostnet_data:/app/data]
+    networks: [deception]
     user: "65534:65534"
     read_only: true
     tmpfs: [/tmp:rw,noexec,nosuid,size=16m]
@@ -16,17 +44,33 @@ services:
     security_opt: [no-new-privileges:true]
     deploy:
       resources:
-        limits: { memory: 256M, cpus: "0.75", pids: 64 }
+        limits: { memory: 128M, cpus: "0.50", pids: 64 }
+
+  edge:
+    build: .
+    command: ["python", "-m", "ghostnet.orchestrator.edge_proxy"]
+    ports: ["127.0.0.1:8081:8081", "127.0.0.1:2222:2222", "127.0.0.1:5433:5433"]
+    networks: [control, deception]
+    user: "65534:65534"
+    read_only: true
+    tmpfs: [/tmp:rw,noexec,nosuid,size=8m]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    deploy:
+      resources:
+        limits: { memory: 128M, cpus: "0.50", pids: 64 }
+
   web-admin:
     build: .
     command: ["python", "-m", "ghostnet.decoys.web_admin"]
     environment:
-      GHOSTNET_API_URL: "http://api:8000"
-      GHOSTNET_HASH_KEY: "${GHOSTNET_HASH_KEY:?set in .env}"
-    ports: ["127.0.0.1:8081:8080"]
+      GHOSTNET_API_URL: http://ingest-api:8002
+      GHOSTNET_HASH_KEY: ${GHOSTNET_HASH_KEY:?set in .env}
+      GHOSTNET_INGEST_SECRET: ${GHOSTNET_INGEST_SECRET:?set in .env}
+      GHOSTNET_DECOY_ID: web-admin-01
+      GHOSTNET_CANARY_TOKENS: ${GHOSTNET_CANARY_TOKENS:-gk_live_demo_web_4f2a}
     networks: [deception]
-    labels:
-      ghostnet.role: decoy
+    labels: { ghostnet.role: decoy }
     user: "65534:65534"
     read_only: true
     tmpfs: [/tmp:rw,noexec,nosuid,size=8m]
@@ -35,16 +79,17 @@ services:
     deploy:
       resources:
         limits: { memory: 128M, cpus: "0.50", pids: 64 }
+
   fake-ssh:
     build: .
-    command: ["python", "-m", "ghostnet.decoys.fake_ssh"]
+    command: ["python", "-m", "ghostnet.decoys.ssh"]
     environment:
-      GHOSTNET_API_URL: "http://api:8000"
-      GHOSTNET_HASH_KEY: "${GHOSTNET_HASH_KEY:?set in .env}"
-    ports: ["127.0.0.1:2222:2222"]
+      GHOSTNET_API_URL: http://ingest-api:8002
+      GHOSTNET_HASH_KEY: ${GHOSTNET_HASH_KEY:?set in .env}
+      GHOSTNET_INGEST_SECRET: ${GHOSTNET_INGEST_SECRET:?set in .env}
+      GHOSTNET_DECOY_ID: fake-ssh-01
     networks: [deception]
-    labels:
-      ghostnet.role: decoy
+    labels: { ghostnet.role: decoy }
     user: "65534:65534"
     read_only: true
     tmpfs: [/tmp:rw,noexec,nosuid,size=8m]
@@ -53,16 +98,17 @@ services:
     deploy:
       resources:
         limits: { memory: 128M, cpus: "0.50", pids: 64 }
+
   fake-db:
     build: .
     command: ["python", "-m", "ghostnet.decoys.fake_db"]
     environment:
-      GHOSTNET_API_URL: "http://api:8000"
-      GHOSTNET_HASH_KEY: "${GHOSTNET_HASH_KEY:?set in .env}"
-    ports: ["127.0.0.1:5433:5433"]
+      GHOSTNET_API_URL: http://ingest-api:8002
+      GHOSTNET_HASH_KEY: ${GHOSTNET_HASH_KEY:?set in .env}
+      GHOSTNET_INGEST_SECRET: ${GHOSTNET_INGEST_SECRET:?set in .env}
+      GHOSTNET_DECOY_ID: fake-db-01
     networks: [deception]
-    labels:
-      ghostnet.role: decoy
+    labels: { ghostnet.role: decoy }
     user: "65534:65534"
     read_only: true
     tmpfs: [/tmp:rw,noexec,nosuid,size=8m]
@@ -71,7 +117,7 @@ services:
     deploy:
       resources:
         limits: { memory: 128M, cpus: "0.50", pids: 64 }
-  # dashboard removed; see site/ for the React frontend
+
 networks:
   control: {}
   deception:

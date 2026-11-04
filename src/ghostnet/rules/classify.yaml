@@ -1,0 +1,62 @@
+# Ordered behavior rules. Every label is a hypothesis with an explicit score,
+# not a probability. The first matching rule wins.
+rules:
+  - id: canary_followup
+    label: canary_followup
+    score: 0.99
+    when:
+      has_token: true
+    evidence:
+      - "a known canary token was used"
+  - id: exploit_attempt
+    label: exploit_attempt
+    score: 0.90
+    when:
+      exploit_paths: {gte: 1}
+    evidence:
+      - "a web path matched a known exploit-probe pattern"
+  - id: credential_stuffing
+    label: credential_stuffing
+    score: 0.92
+    when:
+      n_auth: {gte: 4}
+      n_unique_users: {gte: 3}
+    evidence:
+      - "four or more authentication attempts used three or more usernames"
+  - id: credential_guessing
+    label: credential_guessing
+    score: 0.85
+    when:
+      n_auth: {gte: 4}
+    evidence:
+      - "four or more authentication attempts in one session"
+  - id: scan_discovery
+    label: scan_discovery
+    score: 0.68
+    when:
+      n_events: {lte: 2}
+      duration_s: {lt: 2}
+    evidence:
+      - "a short session touched the decoy with at most two events"
+  - id: scripted_interaction
+    label: scripted_interaction
+    score: 0.60
+    when:
+      n_commands: {gte: 3}
+      iat_cv: {lt: 0.45}
+    evidence:
+      - "three or more commands arrived with low inter-arrival variance"
+  - id: interactive_exploration
+    label: interactive_exploration
+    score: 0.50
+    when:
+      n_commands: {gte: 2}
+      duration_s: {gte: 5}
+    evidence:
+      - "two or more commands over at least five seconds"
+  - id: benign_noise
+    label: benign_noise
+    score: 0.20
+    when: {}
+    evidence:
+      - "no behavior rule matched; treat as unclassified lab noise"
