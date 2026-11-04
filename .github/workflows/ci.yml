@@ -26,6 +26,7 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy src
       - run: uv run pytest -q --cov=ghostnet --cov-fail-under=80
+      - run: uv run python -m ghostnet.evaluation
       - run: uv run python -m ghostnet.orchestrator.containment_check
   site:
     runs-on: ubuntu-latest

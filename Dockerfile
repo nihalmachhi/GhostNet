@@ -12,7 +12,6 @@ COPY --from=builder /install /usr/local
 WORKDIR /app
 RUN mkdir -p /app/data && chown -R 65534:65534 /app
 USER 65534:65534
-EXPOSE 8001
-HEALTHCHECK --interval=20s --timeout=3s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=2)"
+# Documentation only; Compose publishes loopback ports explicitly.
+EXPOSE 8001 8002 8080 2222 5433
 CMD ["uvicorn", "ghostnet.admin_api.main:create_admin_app", "--factory", "--host", "0.0.0.0", "--port", "8001"]
