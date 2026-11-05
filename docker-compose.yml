@@ -14,7 +14,7 @@ services:
     networks: [control]
     user: "65534:65534"
     read_only: true
-    tmpfs: [/tmp:rw,noexec,nosuid,size=16m]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     healthcheck:
@@ -39,7 +39,7 @@ services:
     networks: [deception]
     user: "65534:65534"
     read_only: true
-    tmpfs: [/tmp:rw,noexec,nosuid,size=16m]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     healthcheck:
@@ -58,7 +58,7 @@ services:
     networks: [control, deception]
     user: "65534:65534"
     read_only: true
-    tmpfs: [/tmp:rw,noexec,nosuid,size=8m]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=8m"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     deploy:
@@ -78,7 +78,7 @@ services:
     labels: { ghostnet.role: decoy }
     user: "65534:65534"
     read_only: true
-    tmpfs: [/tmp:rw,noexec,nosuid,size=8m]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=8m"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     deploy:
@@ -97,7 +97,7 @@ services:
     labels: { ghostnet.role: decoy }
     user: "65534:65534"
     read_only: true
-    tmpfs: [/tmp:rw,noexec,nosuid,size=8m]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=8m"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     deploy:
@@ -116,7 +116,7 @@ services:
     labels: { ghostnet.role: decoy }
     user: "65534:65534"
     read_only: true
-    tmpfs: [/tmp:rw,noexec,nosuid,size=8m]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=8m"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     deploy:
