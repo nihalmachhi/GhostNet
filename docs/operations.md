@@ -121,9 +121,9 @@ synthetic fixtures. It also re-runs the static containment check.
 
 ## Local verification note
 
-On the development machine used for this pass, Docker Desktop's Linux engine was
-not running, so `docker compose build` and runtime container inspection could not
-be executed. Static `docker compose config -q` and `check_compose_config` passed.
-CI runs `docker compose config -q` and `docker compose build` on GitHub Actions,
-but it does not start the stack or inspect live containers. See
-[QA](qa.md#docker-verification-gap) for the exact commands and results.
+On 2026-11-05 the full stack was built, started and exercised with Docker
+Desktop's Linux engine: healthchecks passed, scripted traffic reached all three
+decoys, and the admin API reported linked events and verified chains. CI still
+runs only `docker compose config -q` and `docker compose build`; it does not start
+the stack. See [QA](qa.md#docker-runtime-verification) for the exact commands and
+results.

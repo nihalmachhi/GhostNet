@@ -5,9 +5,9 @@ below on the commit you intend to show.
 
 ## Scope
 
-- Date: 2026-11-04
+- Date: 2026-11-05
 - Branch: `main`
-- Commit tested: `bbc8938` (`feat(site): rebuild the portfolio site around GhostNet evidence`)
+- Commit tested: `bc899ca` (`fix: quote compose tmpfs options so containers start`)
 - Local environment: Windows, Python 3.13.7, Node.js 22.19.0, npm 10.9.3
 - Fresh-clone environment: `uv` resolved CPython 3.12.12
 
@@ -16,9 +16,9 @@ below on the commit you intend to show.
 | Check | Command | Result |
 |---|---|---|
 | Python lint | `uv run ruff check .` | pass |
-| Python format | `uv run ruff format --check .` | pass, 91 files |
+| Python format | `uv run ruff format --check .` | pass, 93 files |
 | Python types | `uv run mypy src` | pass, 56 files |
-| Python tests | `uv run pytest -q --cov=ghostnet --cov-report=term-missing` | 83 passed |
+| Python tests | `uv run pytest -q --cov=ghostnet --cov-report=term-missing` | 84 passed |
 | Coverage gate | same as above | 84.81% branch coverage (gate 80%) |
 | Evaluation | `uv run python -m ghostnet.evaluation` | pass, 90.91% accuracy, 91.67% macro F1 |
 | Fixture export | `uv run python site/scripts/export_fixtures.py` | pass, no content diff |
@@ -28,6 +28,11 @@ below on the commit you intend to show.
 | Site build | `npm run build` | pass |
 | Production audit | `npm audit --omit=dev` | 0 findings |
 | Dev audit | `npm audit` | 7 moderate findings in lint tooling, no fix available |
+| Container build | `docker compose build` | pass, six services |
+| Container health | `docker compose up -d` | all healthchecks healthy |
+| Decoy traffic | HTTP login, SSH-style login, DB query through edge | 7 events, 3 sessions |
+| Admin API | `/fleet`, `/events`, `/integrity`, `/adapt/*`, `/panic` | pass |
+| Runtime controls | `docker inspect` | uid 65534, read-only root, all caps dropped |
 
 Re-running the evaluation and fixture exporter produced no content diff in
 `docs/evaluation.json`, `docs/evaluation.md`, `site/src/data/results.generated.json`
@@ -36,7 +41,7 @@ therefore match the committed report.
 
 ## Fresh-clone check
 
-A clean clone of `origin/main` at `bbc8938` was created outside the working tree
+A clean clone of `origin/main` at `bc899ca` was created outside the working tree
 and verified without reusing local build artifacts:
 
 ```bash
@@ -60,30 +65,46 @@ npm run build
 All steps passed. The clone was clean after the generated-report check, so the
 committed artifacts reproduce from the committed source.
 
-## Docker verification gap
+## Docker runtime verification
 
-Static configuration passed with CI-style secrets:
+Docker Desktop's Linux engine was available on 2026-11-05, so the full stack was
+built and started with CI-style secrets:
 
 ```bash
 docker compose config -q
+docker compose build
+docker compose up -d
+curl -H "X-Admin-Token: $GHOSTNET_ADMIN_TOKEN" http://127.0.0.1:8000/fleet
 ```
 
-Image build and live container inspection could not run on this machine:
+Results:
 
-```text
-error during connect: ... open //./pipe/dockerDesktopLinuxEngine:
-The system cannot find the file specified.
-```
+- All six services built. The admin and ingest APIs reached `healthy`; the decoys
+  and edge stayed running.
+- Unauthenticated `/fleet` returned `401`; the authenticated call reported three
+  decoys and panic off.
+- Scripted traffic through the edge produced events on all three decoys: an HTTP
+  login, an SSH-style login and a DB query. The admin API reported 7 events and 3
+  sessions, with only `src_hash` and hashed session IDs retained.
+- `/integrity` verified all three per-decoy HMAC chains. `/adapt/propose` returned
+  a TTL-bound action, approval recorded `deployed=false`, and a duplicate decision
+  returned `409`. Panic and reset worked.
+- A decoy container could not resolve `admin-api`, and `ghostnet_deception` is
+  internal, so the admin API is not reachable from the deception network.
+- `docker inspect` confirmed uid/gid `65534:65534`, a read-only root filesystem and
+  `CapDrop=["ALL"]`.
 
-Consequences:
+The first live run exposed a real bug: the unquoted YAML flow sequence
+`tmpfs: [/tmp:rw,noexec,nosuid,size=16m]` split the options on commas, so Docker
+treated `size=16m` as a mount path. Quoting the value fixed every service, and
+`tests/unit/test_packaging.py` now guards the compose file.
 
-- `docker compose build` and container startup are unverified locally.
-- Runtime controls in `check_runtime` (non-root, read-only root, dropped
-  capabilities, resource limits, internal decoy network) are covered by unit tests
-  against fixture data, not by an inspection of live containers.
-- CI runs `docker compose config -q` and `docker compose build`, but it does not
-  start the stack or inspect live containers.
-- Do not claim a live end-to-end container run until this is executed and recorded.
+One environmental note: an unrelated local container already held host port
+`5433`. Verification used a temporary override mapping only the host side to
+`15433`; the committed mapping is unchanged and `docker compose config -q` passes.
+
+CI still runs only `docker compose config -q` and `docker compose build`; it does
+not start the stack. The runtime results above are a local point-in-time record.
 
 ## Known non-blocking findings
 

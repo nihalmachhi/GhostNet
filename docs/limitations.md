@@ -50,12 +50,12 @@ and should be stated whenever the project is described.
 
 ## Verification gaps
 
-- On the development machine for this pass, Docker Desktop's Linux engine was not
-  running. `docker compose config -q` and the static containment checks passed,
-  but `docker compose build`, container startup and live runtime inspection were
-  not executed locally. CI validates the Compose config and builds the images; it
-  does not run a live container smoke test. Treat container runtime behavior as
-  unverified until that check is added or the stack is run locally.
+- On 2026-11-05 the stack was built, started and exercised locally: healthchecks
+  passed, all three decoys emitted events through the edge, the admin API returned
+  linked sessions and verified chains, and the deception network could not resolve
+  the admin API. CI still validates only the Compose config and image builds; it
+  does not run a live container smoke test, so re-verify after infrastructure
+  changes. See [Final QA](qa.md#docker-runtime-verification).
 - The site is tested with Vitest and a production build, not with a browser
   automation suite.
 - `npm audit` reports moderate findings in development-only lint tooling. The
